@@ -1,0 +1,16 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Two columns one fixed</title>
+		<script src="../../angular/angular.js"></script>
+		<script src="../../directives/rv-layout.js"></script>
+		<script src="two-columns-one-fixed-app.js"></script>
+	</head>
+	<body ng-app="twoColumnsOneFixedApp">
+		<rv-layout orientation="columns">
+			<rv-panel size="300" style="background: #8FF7A3;">Fixed panel</rv-panel>
+			<rv-panel size="*" style="background: #8FE1F7;">Resizing panel</rv-panel>
+		</rv-layout>
+	</body>
+</html>
