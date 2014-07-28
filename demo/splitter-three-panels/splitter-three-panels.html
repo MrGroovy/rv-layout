@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Two columns splitter</title>
+		<script src="../../angular/angular.js"></script>
+		<script src="../../directives/rv-layout.js"></script>
+		<script src="splitter-three-panels-app.js"></script>
+		<style>
+		.rv-splitter {
+			background: rgb(30, 30, 30);
+		}
+		
+		.rv-splitter:hover {
+			background: rgb(160, 160, 160);
+		}
+		</style>
+	</head>
+	<body ng-app="splitterThreePanelsApp">
+		<rv-layout orientation="rows">
+			<rv-layout orientation="columns" size="*">
+				<rv-panel size="230" padding="10" style="background: #8FF7A3;">Left panel</rv-panel>
+				<rv-splitter size="4" class="rv-splitter" style="cursor: ew-resize;"></rv-splitter>
+				<rv-layout orientation="rows" size="*">
+					<rv-scroll-viewer horizontal="false" padding="10" size="*" style="background: #F7F08F;">
+						Right panel
+					</rv-scroll-viewer>
+					<rv-splitter size="4" class="rv-splitter" style="cursor: ns-resize;"></rv-splitter>
+					<rv-panel size="200" padding="10" style="background: #8FE1F7;">Bottom panel</rv-panel>
+				</rv-layout>
+			</rv-layout>
+		</rv-layout>
+	</body>
+</html>

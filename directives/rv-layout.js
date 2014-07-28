@@ -1,4 +1,5 @@
 angular.module("rvLayout", [])
+
 .directive("rvLayout", ["$window", "$timeout", function($window, $timeout) {
 	return {
 		restrict: "EA",
@@ -7,6 +8,41 @@ angular.module("rvLayout", [])
 		template: "<div ng-transclude></div>",
 		scope: {},
 		controller: function ($scope, $element) {
+			this.getOrientation = function() {
+				return $scope.orientation;
+			};
+			
+			this.handleSplitterMove = function(splitterElement, mousePosition) {
+				var splitterIndex = 0;
+				
+				angular.forEach($element.children(), function(child, i) {
+					if (splitterElement[0] === child) {
+						splitterIndex = i;
+					}
+				});
+				
+				if (($scope.childDimensions[splitterIndex - 1].declaredSize !== "*") ||
+					($scope.childDimensions[splitterIndex - 1].declaredSize === "*" && $scope.childDimensions[splitterIndex + 1].declaredSize === "*")) {
+					
+					var totalWidth = 0;
+					for (var i = 0; i < splitterIndex - 1; ++i) {
+						totalWidth += $scope.childDimensions[i].calculatedSize;
+					}
+					
+					$scope.childDimensions[splitterIndex - 1].declaredSize = mousePosition - totalWidth;
+				}
+				else if ($scope.childDimensions[splitterIndex + 1].declaredSize !== "*") {
+					var totalWidth = 0;
+					for (var i = 0; i <= splitterIndex + 1; ++i) {
+						totalWidth += $scope.childDimensions[i].calculatedSize;
+					}
+					
+					$scope.childDimensions[splitterIndex + 1].declaredSize = totalWidth - mousePosition - $scope.childDimensions[splitterIndex].declaredSize;
+				}
+				
+				$scope.calculateSizes();
+				$scope.applyDimensions();
+			};
 		},
 		link: {
 			pre: function(scope, element, attrs, ctrl) {
@@ -66,8 +102,6 @@ angular.module("rvLayout", [])
 				
 				scope.getStarSpace = function() {
 					var starSpace = scope.orientation == "rows" ? element[0].offsetHeight : element[0].offsetWidth;
-					
-					//console.log("starspace", starSpace, element);
 					
 					angular.forEach(scope.childDimensions, function(dimension) {
 						if (dimension.declaredSize != "*") {
@@ -149,13 +183,15 @@ angular.module("rvLayout", [])
 					}
 						
 					timer = $timeout(function() {
-						scope.setUp();
+						scope.calculateSizes();
+						scope.applyDimensions();
 					}, 100);
 				});
 			}
 		}
 	};
 }])
+
 .directive("rvScrollViewer", [function() {
 	return {
 		restrict: "EA",
@@ -187,6 +223,64 @@ angular.module("rvLayout", [])
 		}
 	};
 }])
+
+.directive('rvSplitter', [function() {	
+	return {
+		restrict: 'E',
+		require: '^rvLayout',
+		scope: {},
+		link: function(scope, element, attrs, ctrl) {
+			
+			// Flag to know if the user is dragging
+			var dragging = false;
+			
+			// Get container
+			var container = element.parent();
+			
+			// Get size
+			var splitterSize = parseInt(element.attr('size'), 10);
+			if (!splitterSize) {
+				throw 'Fixed size mandatory on splitters.';
+			}
+			
+			// Init element
+
+			element.bind('mousedown', function (e) {
+				e.preventDefault();
+				dragging = true;
+			});
+			
+			// Reset 'dragging' flag on 'mouseup' event
+			angular.element(document).bind('mouseup', function (ev) {
+				dragging = false;
+			});
+			
+			// Update dragHandle position on 'mousemove' events when 'dragging' is true.
+			container.bind('mousemove', function (e) {
+				if (dragging == true) {
+					var bounds = container[0].getBoundingClientRect();
+					
+					var containerSize = 0;
+					var mousePos = 0;
+					
+					if (ctrl.getOrientation() == "columns") {
+						containerSize = bounds.right - bounds.left;
+						mousePos = e.clientX - bounds.left;
+					}
+					else {
+						containerSize = bounds.bottom - bounds.top;
+						mousePos = e.clientY - bounds.top;
+					}
+					
+					if (mousePos <= containerSize - splitterSize) {
+						ctrl.handleSplitterMove(element, mousePos);
+					}
+				}
+			});
+		}
+	};
+}])
+
 .directive("rvPanel", [function() {
 	return {
 		restrict: "EA",
