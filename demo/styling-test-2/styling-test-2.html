@@ -1,0 +1,68 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Styling test 2</title>
+		<script src="../../angular/angular_1.5.6.js"></script>
+		<script src="../../directives/rv-layout.js"></script>
+		<script src="styling-test-2.js"></script>
+		<style>
+		html {
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: arial;
+			font-size: 13px;
+			background: #00D;
+		}
+		
+		.panelTitle {
+			background: #FF0;
+			color: #00D;
+			padding: 2px;
+		}
+		</style>
+	</head>
+	<body ng-app="StylingTest2App">
+		<rv-layout orientation="columns">
+			<rv-layout orientation="rows" size="300">
+				<rv-panel>
+					<div style="position: absolute; top: 5px; right: 0px; bottom: 5px; left: 5px; background: white;">
+						<div style="position: absolute; top: 2px; right: 2px; bottom: 2px; left: 2px; background: #00D; padding: 4px;">
+							<rv-panel-title>A</rv-panel-title>
+						</div>
+					</div>
+				</rv-panel>
+			</rv-layout>
+			<rv-layout orientation="rows">
+				<div>
+					<div style="position: absolute; top: 5px; right: 5px; bottom: 0px; left: 5px; background: white;">
+						<div style="position: absolute; top: 2px; right: 2px; bottom: 2px; left: 2px; background: #00D; padding: 4px;">
+							<rv-panel-title>B</rv-panel-title>
+						</div>
+					</div>
+				</div>
+				<rv-layout size="240" orientation="columns">
+					<rv-panel size="200">
+						<div style="position: absolute; top: 5px; right: 0; bottom: 5px; left: 5px; background: white;">
+							<div style="position: absolute; top: 2px; right: 2px; bottom: 2px; left: 2px; background: #00D; padding: 4px;">
+								<rv-panel-title>C</rv-panel-title>
+							</div>
+						</div>
+					</rv-panel>
+					<rv-panel size="230">
+						<div style="position: absolute; top: 5px; right: 0; bottom: 5px; left: 5px; background: white;">
+							<div style="position: absolute; top: 2px; right: 2px; bottom: 2px; left: 2px; background: #00D; padding: 4px;">
+								<rv-panel-title>D</rv-panel-title>
+							</div>
+						</div>
+					</rv-panel>
+					<rv-border-panel>
+						<rv-panel-title>E</rv-panel-title>
+					</rv-border-panel>
+				</rv-layout>
+			</rv-layout>
+		</rv-layout>
+	</body>
+</html>

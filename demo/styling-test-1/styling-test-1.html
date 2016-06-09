@@ -1,0 +1,77 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Styling test 1</title>
+		<script src="../../angular/angular_1.5.6.js"></script>
+		<script src="../../directives/rv-layout.js"></script>
+		<script src="styling-test-1.js"></script>
+		<style>
+		body {
+			font-family: arial;
+			font-size: 13px;
+		}
+		
+		.header {
+			background: rgb(10, 10, 255);
+			color: white;
+		}
+		
+		.header h1 {
+			margin: 0;
+			font-size: 30px;
+		}
+		
+		.headerBorder {
+			background: rgb(255, 70, 70);
+			background: rgb(128, 128, 255);
+		}
+		
+		.rv-splitter {
+			background: rgb(200, 200, 200);
+		}
+		
+		.rv-splitter:hover {
+			background: rgb(160, 160, 160);
+		}
+		
+		.panelTitle {
+			background: rgb(180, 180, 190);
+			color: rgb(240, 240, 240);
+		}
+		
+		.panelContent {
+			background: rgb(255, 255, 255);
+		}
+		</style>
+	</head>
+	<body ng-app="StylingTest1App">
+		<rv-layout orientation="rows">
+			<rv-panel size="50" padding="5" class="header"><h1>Header</h1></rv-panel>
+			<rv-panel size="4" class="headerBorder"></rv-panel>
+			<rv-layout orientation="columns">
+				
+				<rv-layout orientation="rows" size="300">
+					<rv-panel size="24" padding="3" class="panelTitle">Left</rv-panel>
+					<rv-panel padding="3" class="panelContent">Content left</rv-panel>
+				</rv-layout>
+				
+				<rv-splitter size="4" class="rv-splitter" style="cursor: ew-resize;"></rv-splitter>
+				<rv-layout orientation="rows">
+					
+					<rv-layout size="*" minsize="200" orientation="rows">
+						<rv-panel size="24" padding="3" class="panelTitle">Right</rv-panel>
+						<rv-panel padding="3" class="panelContent">Content right</rv-panel>
+					</rv-layout>
+					
+					<rv-splitter size="4" class="rv-splitter" style="cursor: ns-resize;"></rv-splitter>
+					
+					<rv-layout size="240" orientation="rows">
+						<rv-panel size="24" padding="3" class="panelTitle">Bottom</rv-panel>
+						<rv-panel padding="3" class="panelContent">Content Bottom</rv-panel>
+					</rv-layout>
+				</rv-layout>
+			</rv-layout>
+		</rv-layout>
+	</body>
+</html>

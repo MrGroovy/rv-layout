@@ -12,35 +12,38 @@ angular.module("rvLayout", [])
 				return $scope.orientation;
 			};
 			
-			this.handleSplitterMove = function(splitterElement, mousePosition) {
-				var splitterIndex = 0;
+			this.handleSplitterMove = function(splitterElement, mouseDelta, mousePos) {
 				
+				// Find the splitter element index
+				var splitterIndex = 0;
 				angular.forEach($element.children(), function(child, i) {
 					if (splitterElement[0] === child) {
 						splitterIndex = i;
 					}
 				});
 				
-				if (($scope.childDimensions[splitterIndex - 1].declaredSize !== "*") ||
-					($scope.childDimensions[splitterIndex - 1].declaredSize === "*" && $scope.childDimensions[splitterIndex + 1].declaredSize === "*")) {
-					
-					var totalWidth = 0;
-					for (var i = 0; i < splitterIndex - 1; ++i) {
-						totalWidth += $scope.childDimensions[i].calculatedSize;
-					}
-					
-					$scope.childDimensions[splitterIndex - 1].declaredSize = mousePosition - totalWidth;
+				var aaa = 0;
+				for (var i = 0; i <= splitterIndex - 1; ++i) {
+					aaa += $scope.childDimensions[i].calculatedSize;
 				}
-				else if ($scope.childDimensions[splitterIndex + 1].declaredSize !== "*") {
-					var totalWidth = 0;
-					for (var i = 0; i <= splitterIndex + 1; ++i) {
-						totalWidth += $scope.childDimensions[i].calculatedSize;
-					}
-					
-					$scope.childDimensions[splitterIndex + 1].declaredSize = totalWidth - mousePosition - $scope.childDimensions[splitterIndex].declaredSize;
+				var delta = mousePos - aaa;
+				
+				var oldSizeA = $scope.childDimensions[splitterIndex - 1].calculatedSize;
+				var newSizeA = $scope.childDimensions[splitterIndex - 1].calculatedSize + delta;
+				var oldSizeB = $scope.childDimensions[splitterIndex + 1].calculatedSize;
+				var newSizeB = $scope.childDimensions[splitterIndex + 1].calculatedSize - delta;
+				
+				var minSizeA = $scope.childDimensions[splitterIndex - 1].minSize;
+				var minSizeB = $scope.childDimensions[splitterIndex + 1].minSize;
+				
+				if (newSizeA < minSizeA || newSizeB < minSizeB) {
+					newSizeA = oldSizeA;
+					newSizeB = oldSizeB;
 				}
 				
-				$scope.calculateSizes();
+				$scope.childDimensions[splitterIndex - 1].calculatedSize = newSizeA;
+				$scope.childDimensions[splitterIndex + 1].calculatedSize = newSizeB;
+				
 				$scope.applyDimensions();
 			};
 		},
@@ -62,8 +65,31 @@ angular.module("rvLayout", [])
 						scope.orientation = orientation;
 					}
 					else {
-						throw "rvLayout orientation attribute should be either 'columns' or 'rows'.";
+						throw "rvLayout 'orientation' attribute should be either 'columns' or 'rows'.";
 					}
+				};
+				
+				scope.parseDeclaredDimensions = function() {
+					// Initialize dimensions
+					angular.forEach(element.children(), function(child, i) {
+						child = angular.element(child);
+						var declaredSize = scope.getDeclaredDimension(child);
+						
+						scope.childDimensions[i] = {
+							declaredSize: declaredSize,
+							calculatedSize: declaredSize,
+							minSize: scope.getMinSize(child)
+						};
+					});
+					
+					// Calculate and set dimensions with star
+					var stars = scope.getNrOfStars();
+					var starSpace = scope.getStarSpace();
+					angular.forEach(element.children(), function(child, i) {
+						if (scope.childDimensions[i].declaredSize === "*") {
+							scope.childDimensions[i].calculatedSize = Math.floor(starSpace / stars);
+						}
+					});
 				};
 				
 				scope.getDeclaredDimension = function(element) {
@@ -80,14 +106,13 @@ angular.module("rvLayout", [])
 					return retVal;
 				};
 				
-				scope.parseDeclaredDimensions = function() {
-					angular.forEach(element.children(), function(child, i) {
-						child = angular.element(child);
-						scope.childDimensions[i] = {
-							declaredSize: scope.getDeclaredDimension(child),
-							calculatedSize: 0
-						};
-					});
+				scope.getMinSize = function(element) {
+					var retVal = -1;
+					var sizeAttr = element.attr("minsize");
+					if (sizeAttr) {
+						var retVal = parseInt(sizeAttr, 10);
+					}					
+					return retVal;
 				};
 				
 				scope.getNrOfStars = function() {
@@ -105,7 +130,7 @@ angular.module("rvLayout", [])
 					
 					angular.forEach(scope.childDimensions, function(dimension) {
 						if (dimension.declaredSize != "*") {
-							starSpace -= dimension.declaredSize;
+							starSpace -= dimension.calculatedSize;
 						}
 					});
 					return starSpace;
@@ -114,11 +139,10 @@ angular.module("rvLayout", [])
 				scope.calculateSizes = function() {
 					var starSpace = scope.getStarSpace();
 					var nrOfStars = scope.getNrOfStars();
+					
 					angular.forEach(scope.childDimensions, function(dimension) {
 						if (dimension.declaredSize == "*") {
 							dimension.calculatedSize = Math.floor(starSpace / nrOfStars);
-						} else {
-							dimension.calculatedSize = dimension.declaredSize;
 						}
 					});
 				};
@@ -231,6 +255,8 @@ angular.module("rvLayout", [])
 		scope: {},
 		link: function(scope, element, attrs, ctrl) {
 			
+			scope.lastMousePos = -1;
+			
 			// Flag to know if the user is dragging
 			var dragging = false;
 			
@@ -273,7 +299,15 @@ angular.module("rvLayout", [])
 					}
 					
 					if (mousePos <= containerSize - splitterSize) {
-						ctrl.handleSplitterMove(element, mousePos);
+					
+						if (scope.lastMousePos == -1) {
+							scope.lastMousePos = mousePos;
+						}
+						
+						var delta = scope.lastMousePos - mousePos;
+					
+						ctrl.handleSplitterMove(element, delta, mousePos);
+						scope.lastMousePos = mousePos;
 					}
 				}
 			});
@@ -301,6 +335,35 @@ angular.module("rvLayout", [])
 			element.css("right", "0");
 			element.css("bottom", "0");
 			element.css("left", "0");
+		}
+	};
+}])
+
+.directive("rvBorderPanel", [function() {
+	return {
+		restrict: "E",
+		replace: true,
+		transclude: true,
+		template: function(element, attrs) {
+			return '<div>'
+							+ '<div style="position: absolute; top: 5px; right: 5px; bottom: 5px; left: 5px; background: white;">'
+								+ '<div style="position: absolute; top: 2px; right: 2px; bottom: 2px; left: 2px; background: #00D; padding: 4px;">'
+									+ '<div ng-transclude style="background: blue; color: white; padding: 2px;"></div>'
+								+ '</div>'
+							+ '</div>'
+						+ '</div>';
+		}
+	};
+}])
+
+
+.directive("rvPanelTitle", [function() {
+	return {
+		restrict: "E",
+		replace: true,
+		transclude: true,
+		template: function(element, attrs) {
+			return '<div class="panelTitle" ng-transclude></div>';
 		}
 	};
 }]);

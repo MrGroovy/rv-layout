@@ -2,10 +2,10 @@
 <html>
 	<head>
 		<meta charset="utf-8">
-		<title>Two Splitters, three panels</title>
-		<script src="../../angular/angular.js"></script>
+		<title>Splitter three panels</title>
+		<script src="../../angular/angular_1.5.6.js"></script>
 		<script src="../../directives/rv-layout.js"></script>
-		<script src="splitter-three-panels-app.js"></script>
+		<script src="splitter-three-panels.js"></script>
 		<style>
 		.rv-splitter {
 			background: rgb(30, 30, 30);
@@ -16,14 +16,16 @@
 		}
 		</style>
 	</head>
-	<body ng-app="splitterThreePanelsApp">
+	<body ng-app="SplitterThreePanelsApp">
 		<rv-layout orientation="columns" size="*">
 			<rv-panel size="230" padding="10" style="background: #8FF7A3;">Left panel</rv-panel>
 			<rv-splitter size="4" class="rv-splitter" style="cursor: ew-resize;"></rv-splitter>
 			<rv-layout orientation="rows" size="*">
-				<rv-scroll-viewer horizontal="false" padding="10" size="*" style="background: #F7F08F;">Right panel</rv-scroll-viewer>
+				<rv-scroll-viewer horizontal="false" padding="10" size="*" minsize="100" style="background: #F7F08F;">Top panel</rv-scroll-viewer>
 				<rv-splitter size="4" class="rv-splitter" style="cursor: ns-resize;"></rv-splitter>
-				<rv-panel size="200" padding="10" style="background: #8FE1F7;">Bottom panel</rv-panel>
+				<rv-scroll-viewer horizontal="false" padding="10" size="200" minsize="120" style="background: #F7F08F;">Middle panel</rv-scroll-viewer>
+				<rv-splitter size="4" class="rv-splitter" style="cursor: ns-resize;"></rv-splitter>
+				<rv-panel size="200" padding="10" style="background: #8FE1F7;" minsize="120">Bottom panel</rv-panel>
 			</rv-layout>
 		</rv-layout>
 	</body>
